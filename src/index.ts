@@ -1,6 +1,4 @@
 import {OrgbValue, UpdateParams} from "core";
-import {KeyInputsResult} from "key_inputs";
-import {MoveCamera} from "camera";
 
 interface Size {
   width: number;
@@ -12,17 +10,18 @@ interface Position {
   y: number;
 }
 
+interface Vector {
+  x: number;
+  y: number;
+}
+
 interface Space {
   position: Position;
   size: Size;
 }
 
-export interface GamePbjectParms extends UpdateParams {
-  keyboard: KeyInputsResult,
-  moveCamera: MoveCamera,
-}
 
-export default abstract class GameObject implements Space {
+export default abstract class GameObject<ParamsType extends UpdateParams, StateType> implements Space {
   position = {
     x: 0,
     y: 0,
@@ -31,17 +30,37 @@ export default abstract class GameObject implements Space {
     width: 1,
     height: 1,
   };
-  tick = (params: GamePbjectParms) => {
+  speed: Vector = {
+    x: 0,
+    y: 0,
+  };
+
+  state: StateType;
+
+  constructor(state: StateType) {
+    this.state = state;
+  }
+
+  tick = (params: ParamsType) => {
     const setPixel = (x: number, y: number, color: OrgbValue) => {
-      params.pixels.setPixel(this.position.x + x, this.position.y + y, color);
+      params.pixels.setPixel(Math.round(this.position.x + x), Math.round(this.position.y + y), color);
     };
-    this.update({
+
+    const p = {
       ...params,
       pixels: {
         ...params.pixels,
         setPixel
       }
-    });
+    };
+
+    this.update(p);
+
+    this.position.x += this.speed.x * params.delta / 1000;
+    this.position.y += this.speed.y * params.delta / 1000;
+
+    this.draw(p);
   };
-  abstract update(params: GamePbjectParms): void;
+  abstract update(params: ParamsType): void;
+  abstract draw(params: ParamsType): void;
 }
