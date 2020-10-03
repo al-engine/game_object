@@ -1,4 +1,5 @@
 import {OrgbValue, UpdateParams} from "core";
+import {CameraResult} from "camera";
 
 interface Size {
   width: number;
@@ -20,8 +21,12 @@ interface Space {
   size: Size;
 }
 
+export interface Params extends UpdateParams {
+  camera: CameraResult
+}
 
-export default abstract class GameObject<ParamsType extends UpdateParams, StateType> implements Space {
+
+export default abstract class GameObject<ParamsType extends Params, StateType> implements Space {
   position = {
     x: 0,
     y: 0,
@@ -42,6 +47,9 @@ export default abstract class GameObject<ParamsType extends UpdateParams, StateT
   }
 
   tick = (params: ParamsType) => {
+    if (!this.needUpdate(params)) {
+      return;
+    }
     const setPixel = (x: number, y: number, color: OrgbValue) => {
       params.pixels.setPixel(Math.round(this.position.x + x), Math.round(this.position.y + y), color);
     };
@@ -59,7 +67,15 @@ export default abstract class GameObject<ParamsType extends UpdateParams, StateT
     this.position.x += this.speed.x * params.delta / 1000;
     this.position.y += this.speed.y * params.delta / 1000;
 
-    this.draw(p);
+    if (this.inBound(params)) {
+      this.draw(p);
+    }
+  };
+  needUpdate = (params: ParamsType) => {
+    return this.inBound(params);
+  };
+  inBound = (params: ParamsType) => {
+    return params.camera.inBound(this.position, this.size);
   };
   abstract update(params: ParamsType): void;
   abstract draw(params: ParamsType): void;
