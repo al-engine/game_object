@@ -26,7 +26,7 @@ export interface Params extends UpdateParams {
 }
 
 
-export default abstract class GameObject<ParamsType extends Params, StateType> implements Space {
+export default abstract class GameObject<ParamsType extends Params> implements Space {
   position = {
     x: 0,
     y: 0,
@@ -39,12 +39,8 @@ export default abstract class GameObject<ParamsType extends Params, StateType> i
     x: 0,
     y: 0,
   };
-
-  state: StateType;
-
-  constructor(state: StateType) {
-    this.state = state;
-  }
+  children = Array<GameObject<ParamsType>>();
+  parent?: GameObject<ParamsType>;
 
   tick = (params: ParamsType) => {
     if (!this.needUpdate(params)) {
@@ -70,6 +66,8 @@ export default abstract class GameObject<ParamsType extends Params, StateType> i
     if (this.inBound(params)) {
       this.draw(p);
     }
+
+    this.children.forEach(child => child.tick(p));
   };
   needUpdate = (params: ParamsType) => {
     return this.inBound(params);
@@ -77,6 +75,20 @@ export default abstract class GameObject<ParamsType extends Params, StateType> i
   inBound = (params: ParamsType) => {
     return params.camera.inBound(this.position, this.size);
   };
+  addChild = (child: GameObject<ParamsType>) => {
+    child.parent = this;
+    this.children.push(child);
+  };
+  removeChild = (child: GameObject<ParamsType>) => {
+    const index = this.children.indexOf(child);
+    if (index !== -1) {
+      child.parent = undefined;
+      this.children.splice(index, 1);
+    }
+  };
+  destroy() {
+    this.parent?.removeChild(this);
+  }
   abstract update(params: ParamsType): void;
   abstract draw(params: ParamsType): void;
 }
