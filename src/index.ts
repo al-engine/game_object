@@ -41,11 +41,53 @@ export default abstract class GameObject<ParamsType extends Params> implements S
   };
   children = Array<GameObject<ParamsType>>();
   parent?: GameObject<ParamsType>;
+  needUpdate = (params: ParamsType) => {
+    return this.inBound(params);
+  };
+  inBound = (params: ParamsType) => {
+    return params.camera.inBound(this.position, this.size);
+  };
+  addChild = (child: GameObject<ParamsType>) => {
+    child.parent = this;
+    this.children.push(child);
+    child.init();
+  };
+  removeChild = (child: GameObject<ParamsType>) => {
+    const index = this.children.indexOf(child);
+    if (index !== -1) {
+      child.parent = undefined;
+      this.children.splice(index, 1);
+    }
+  };
+  getAncestorByType: (type: any) => unknown  = (type: any) => {
+    let target = this.parent;
 
+    while (target) {
+      if (target instanceof type) {
+        return target;
+      }
+      target = target.parent;
+    }
+    return null;
+  };
+  destroy() {
+    this.parent?.removeChild(this);
+  }
+  init() {}
   tick = (params: ParamsType) => {
     if (!this.needUpdate(params)) {
       return;
     }
+    this.update(params);
+
+    this.children.forEach(child => child.tick(params));
+  };
+  update = (_: ParamsType) => {};
+  render = (params: ParamsType) => {
+    if (!this.inBound(params)) {
+      return;
+    }
+
     const setPixel = (x: number, y: number, color: OrgbValue) => {
       params.pixels.setPixel(Math.round(this.position.x + x), Math.round(this.position.y + y), color);
     };
@@ -58,37 +100,9 @@ export default abstract class GameObject<ParamsType extends Params> implements S
       }
     };
 
-    this.update(p);
+    this.draw(p);
 
-    this.position.x += this.speed.x * params.delta / 1000;
-    this.position.y += this.speed.y * params.delta / 1000;
-
-    if (this.inBound(params)) {
-      this.draw(p);
-    }
-
-    this.children.forEach(child => child.tick(p));
+    this.children.forEach(child => child.render(p));
   };
-  needUpdate = (params: ParamsType) => {
-    return this.inBound(params);
-  };
-  inBound = (params: ParamsType) => {
-    return params.camera.inBound(this.position, this.size);
-  };
-  addChild = (child: GameObject<ParamsType>) => {
-    child.parent = this;
-    this.children.push(child);
-  };
-  removeChild = (child: GameObject<ParamsType>) => {
-    const index = this.children.indexOf(child);
-    if (index !== -1) {
-      child.parent = undefined;
-      this.children.splice(index, 1);
-    }
-  };
-  destroy() {
-    this.parent?.removeChild(this);
-  }
-  abstract update(params: ParamsType): void;
-  abstract draw(params: ParamsType): void;
+  draw = (_: ParamsType) => {};
 }
