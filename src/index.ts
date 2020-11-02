@@ -1,5 +1,6 @@
 import {OrgbValue, UpdateParams} from "core";
 import {CameraResult} from "camera";
+import {Sprite} from "asset";
 
 interface Size {
   width: number;
@@ -41,6 +42,7 @@ export default abstract class GameObject<ParamsType extends Params> implements S
   };
   children = Array<GameObject<ParamsType>>();
   parent?: GameObject<ParamsType>;
+  sprite?: Sprite;
   needUpdate = (params: ParamsType) => {
     return this.inBound(params);
   };
@@ -104,5 +106,14 @@ export default abstract class GameObject<ParamsType extends Params> implements S
 
     this.children.forEach(child => child.render(p));
   };
-  draw = (_: ParamsType) => {};
+  draw = (params: ParamsType) => {
+    if (this.sprite) {
+      for (let i = 0; i < this.sprite.pixels.length; i++) {
+        const row = Math.floor(i / this.sprite.width);
+        const col = i - row * this.sprite.width;
+        params.pixels.setPixel(col, row, this.sprite.pixels[i]);
+      }
+      return;
+    }
+  };
 }
