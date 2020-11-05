@@ -1,6 +1,4 @@
-import {OrgbValue, UpdateParams} from "core";
-import {CameraResult} from "camera";
-import {Sprite} from "asset";
+import {OrgbValue, UpdateParams, CameraResult,Sprite } from "core";
 
 interface Size {
   width: number;
@@ -25,7 +23,6 @@ interface Space {
 export interface Params extends UpdateParams {
   camera: CameraResult
 }
-
 
 export default abstract class GameObject<ParamsType extends Params> implements Space {
   position = {
