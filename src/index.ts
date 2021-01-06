@@ -58,12 +58,12 @@ export default abstract class GameObject<ParamsType extends Params> implements S
       this.children.splice(index, 1);
     }
   };
-  getAncestorByType: (type: any) => unknown  = (type: any) => {
+  getAncestorByType: <T extends GameObject<ParamsType>> (type: any) => T | null  = <T extends GameObject<ParamsType>>(type: any): T | null => {
     let target = this.parent;
 
     while (target) {
       if (target instanceof type) {
-        return target;
+        return target as T;
       }
       target = target.parent;
     }
