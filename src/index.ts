@@ -20,11 +20,11 @@ interface Space {
   size: Size;
 }
 
-export interface Params extends UpdateParams {
+export interface GameObjectParams extends UpdateParams {
   camera: CameraResult
 }
 
-export default abstract class GameObject<ParamsType extends Params> implements Space {
+export default abstract class GameObject<ParamsType extends GameObjectParams> implements Space {
   position = {
     x: 0,
     y: 0,
