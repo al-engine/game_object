@@ -1,24 +1,4 @@
-import {OrgbValue, UpdateParams, CameraResult,Sprite } from "core";
-
-interface Size {
-  width: number;
-  height: number;
-}
-
-interface Position {
-  x: number;
-  y: number;
-}
-
-interface Vector {
-  x: number;
-  y: number;
-}
-
-interface Space {
-  position: Position;
-  size: Size;
-}
+import {OrgbValue, UpdateParams, CameraResult, Sprite, Vector, Space } from "core";
 
 export interface GameObjectParams extends UpdateParams {
   camera: CameraResult
@@ -113,4 +93,10 @@ export default abstract class GameObject<ParamsType extends GameObjectParams> im
       return;
     }
   };
+  move = (params: ParamsType) => {
+    this.position = {
+      x: this.position.x + this.speed.x * params.delta / 1000,
+      y: this.position.y + this.speed.y * params.delta / 1000
+    };
+  }
 }
