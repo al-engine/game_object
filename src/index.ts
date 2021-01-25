@@ -1,10 +1,18 @@
-import {OrgbValue, UpdateParams, CameraResult, Sprite, Vector, Space } from "core";
+import {
+  OrgbValue,
+  UpdateParams,
+  CameraResult,
+  Sprite,
+  Vector,
+  Space,
+} from '@al-engine/core';
 
 export interface GameObjectParams extends UpdateParams {
-  camera: CameraResult
+  camera: CameraResult;
 }
 
-export default abstract class GameObject<ParamsType extends GameObjectParams> implements Space {
+export default abstract class GameObject<ParamsType extends GameObjectParams>
+  implements Space {
   position = {
     x: 0,
     y: 0,
@@ -38,7 +46,9 @@ export default abstract class GameObject<ParamsType extends GameObjectParams> im
       this.children.splice(index, 1);
     }
   };
-  getAncestorByType: <T extends GameObject<ParamsType>> (type: any) => T | null  = <T extends GameObject<ParamsType>>(type: any): T | null => {
+  getAncestorByType: <T extends GameObject<ParamsType>>(
+    type: any
+  ) => T | null = <T extends GameObject<ParamsType>>(type: any): T | null => {
     let target = this.parent;
 
     while (target) {
@@ -68,15 +78,19 @@ export default abstract class GameObject<ParamsType extends GameObjectParams> im
     }
 
     const setPixel = (x: number, y: number, color: OrgbValue) => {
-      params.pixels.setPixel(Math.round(this.position.x + x), Math.round(this.position.y + y), color);
+      params.pixels.setPixel(
+        Math.round(this.position.x + x),
+        Math.round(this.position.y + y),
+        color
+      );
     };
 
     const p = {
       ...params,
       pixels: {
         ...params.pixels,
-        setPixel
-      }
+        setPixel,
+      },
     };
 
     this.draw(p);
@@ -95,8 +109,8 @@ export default abstract class GameObject<ParamsType extends GameObjectParams> im
   };
   move = (params: ParamsType) => {
     this.position = {
-      x: this.position.x + this.speed.x * params.delta / 1000,
-      y: this.position.y + this.speed.y * params.delta / 1000
+      x: this.position.x + (this.speed.x * params.delta) / 1000,
+      y: this.position.y + (this.speed.y * params.delta) / 1000,
     };
-  }
+  };
 }
