@@ -5,6 +5,7 @@ import {
   Sprite,
   Vector,
   Space,
+  Position,
 } from '@al-engine/core';
 
 export interface GameObjectParams extends UpdateParams {
@@ -121,5 +122,21 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
       };
     }
     return this.position;
+  }
+  setAbsolute(position: Partial<Position>) {
+    if (position.x !== undefined) {
+      if (this.parent) {
+        this.position.x = position.x - this.parent.position.x;
+      } else {
+        this.position.x = position.x;
+      }
+    }
+    if (position.y !== undefined) {
+      if (this.parent) {
+        this.position.y = position.y - this.parent.position.y;
+      } else {
+        this.position.y = position.y;
+      }
+    }
   }
 }
