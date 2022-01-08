@@ -118,7 +118,7 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
     if (this.parent) {
       return {
         x: this.parent.position.x + this.position.x,
-        y: this.parent.position.y + this.position.x,
+        y: this.parent.position.y + this.position.y,
       };
     }
     return this.position;
