@@ -113,4 +113,13 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
       y: this.position.y + (this.speed.y * params.delta) / 1000,
     };
   };
+  getAbsolutePosition() {
+    if (this.parent) {
+      return {
+        x: this.parent.position.x + this.position.x,
+        y: this.parent.position.y + this.position.x,
+      };
+    }
+    return this.position;
+  }
 }
