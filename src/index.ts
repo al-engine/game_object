@@ -147,5 +147,7 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
     }
   }
 
-  teardown() {}
+  teardown() {
+    this.children.forEach(c => c.teardown());
+  }
 }
