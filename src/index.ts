@@ -29,6 +29,7 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
   children = Array<GameObject<ParamsType>>();
   parent?: GameObject<ParamsType>;
   sprite?: Sprite;
+  zIndex = 0;
   needUpdate = (params: ParamsType) => {
     return this.inBound(params);
   };
@@ -96,6 +97,8 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
 
     this.draw(p);
 
+    this.sortChildren();
+
     this.children.forEach(child => child.render(p));
   };
   draw = (params: ParamsType) => {
@@ -107,6 +110,9 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
       }
       return;
     }
+  };
+  sortChildren = () => {
+    this.children.sort((f, s) => f.zIndex - s.zIndex);
   };
   move = (params: ParamsType) => {
     this.position = {
