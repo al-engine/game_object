@@ -46,6 +46,7 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
     if (index !== -1) {
       child.parent = undefined;
       this.children.splice(index, 1);
+      child.teardown();
     }
   };
   getAncestorByType: <T extends GameObject<ParamsType>>(
@@ -145,4 +146,6 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
       }
     }
   }
+
+  teardown() {}
 }
