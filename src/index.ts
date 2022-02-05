@@ -44,9 +44,9 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
   removeChild = (child: GameObject<ParamsType>) => {
     const index = this.children.indexOf(child);
     if (index !== -1) {
+      child.teardown();
       child.parent = undefined;
       this.children.splice(index, 1);
-      child.teardown();
     }
   };
   getAncestorByType: <T extends GameObject<ParamsType>>(
