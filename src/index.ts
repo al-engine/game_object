@@ -34,7 +34,7 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
     return this.inBound(params);
   };
   inBound = (params: ParamsType) => {
-    return params.camera.inBound(this.position, this.size);
+    return params.camera.inBound(this.getAbsolutePosition(), this.size);
   };
   addChild = (child: GameObject<ParamsType>) => {
     child.parent = this;
