@@ -6,10 +6,17 @@ import {
   Vector,
   Space,
   Position,
+  Pixels,
 } from '@al-engine/core';
 
 export interface GameObjectParams extends UpdateParams {
   camera: CameraResult;
+  hud: Pixels;
+}
+
+export enum RenderMode {
+  hud,
+  camera,
 }
 
 export default abstract class GameObject<ParamsType extends GameObjectParams>
@@ -30,10 +37,19 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
   parent?: GameObject<ParamsType>;
   sprite?: Sprite;
   zIndex = 0;
+  renderMode: RenderMode;
+
+  constructor(renderMode?: RenderMode) {
+    this.renderMode = renderMode ?? RenderMode.camera;
+  }
+
   needUpdate = (params: ParamsType) => {
     return this.inBound(params);
   };
   inBound = (params: ParamsType) => {
+    if (this.renderMode === RenderMode.hud) {
+      return true;
+    }
     return params.camera.inBound(this.getAbsolutePosition(), this.size);
   };
   addChild = (child: GameObject<ParamsType>) => {
@@ -81,7 +97,7 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
     }
 
     const setPixel = (x: number, y: number, color: OrgbValue) => {
-      params.pixels.setPixel(
+      this.extractPixel(params).setPixel(
         Math.round(this.position.x + x),
         Math.round(this.position.y + y),
         color
@@ -121,11 +137,11 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
       y: this.position.y + (this.speed.y * params.delta) / 1000,
     };
   };
-  getAbsolutePosition() {
+  getAbsolutePosition(): Position {
     if (this.parent) {
       return {
-        x: this.parent.position.x + this.position.x,
-        y: this.parent.position.y + this.position.y,
+        x: this.parent.getAbsolutePosition().x + this.position.x,
+        y: this.parent.getAbsolutePosition().y + this.position.y,
       };
     }
     return this.position;
@@ -133,21 +149,26 @@ export default abstract class GameObject<ParamsType extends GameObjectParams>
   setAbsolute(position: Partial<Position>) {
     if (position.x !== undefined) {
       if (this.parent) {
-        this.position.x = position.x - this.parent.position.x;
+        this.position.x = position.x - this.parent.getAbsolutePosition().x;
       } else {
         this.position.x = position.x;
       }
     }
     if (position.y !== undefined) {
       if (this.parent) {
-        this.position.y = position.y - this.parent.position.y;
+        this.position.y = position.y - this.parent.getAbsolutePosition().y;
       } else {
         this.position.y = position.y;
       }
     }
   }
-
   teardown() {
     this.children.forEach(c => c.teardown());
+  }
+  extractPixel(params: ParamsType) {
+    if (this.renderMode === RenderMode.hud) {
+      return params.hud;
+    }
+    return params.pixels;
   }
 }
